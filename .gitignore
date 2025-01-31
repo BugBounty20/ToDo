@@ -1,0 +1,14 @@
+# Backend
+todo-backend/node_modules/
+todo-backend/.env
+
+# Frontend
+todo-frontend/node_modules/
+todo-frontend/.env
+todo-frontend/dist/
+todo-frontend/build/
+
+# General
+.DS_Store
+.idea/
+.vscode/
