@@ -2,13 +2,16 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
 
+
 const API_URL = process.env.REACT_APP_BACKEND_URL;
+const worker = new Worker('/taskCalculatorWorker.js')
 
 
 function App() {
   const [todos, setTodos] = useState([]);
   const [task, setTask] = useState('');
   const [editId, setEditId] = useState(null);
+  const [totalTasks, setTotalTasks] = useState(null);
 
   // Fetch todos from NestJS backend
   const fetchTodos = async () => {
@@ -23,6 +26,18 @@ function App() {
   useEffect(() => {
     fetchTodos();
   }, []);
+
+
+  useEffect(() => {
+    if (todos.length > 0) {
+      worker.postMessage(todos);
+    }
+  }, [todos]);
+
+  worker.onmessage = function (event) {
+    console.log("Total tasks received from worker:", event.data);
+    setTotalTasks(event.data);
+  };
 
 
   const handleSubmit = async (e) => {
@@ -59,6 +74,7 @@ function App() {
     setEditId(todo.id);
   };
 
+
   return (
     <div className="App">
       <h1>Todo App</h1>
@@ -71,6 +87,10 @@ function App() {
         />
         <button type="submit">{editId ? 'Update' : 'Add'}</button>
       </form>
+
+      <h2>Total Tasks: {totalTasks !== null ? totalTasks : "Loading..."}</h2>
+
+
       <ul>
         {todos.map((todo) => (
           <li key={todo.id}>
